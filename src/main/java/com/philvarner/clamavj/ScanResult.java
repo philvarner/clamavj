@@ -7,7 +7,7 @@ public class ScanResult {
     private String signature = "";
     private Exception exception = null;
 
-    public enum Status { PASSED, FAILED, ERROR }
+    public enum Status {PASSED, FAILED, ERROR}
 
     public static final String STREAM_PREFIX = "stream: ";
     public static final String RESPONSE_OK = "stream: OK";
@@ -16,11 +16,11 @@ public class ScanResult {
     public static final String RESPONSE_SIZE_EXCEEDED = "INSTREAM size limit exceeded. ERROR";
     public static final String RESPONSE_ERROR_WRITING_FILE = "Error writing to temporary file. ERROR";
 
-    public ScanResult(String result){
+    public ScanResult(String result) {
         setResult(result);
     }
 
-    public ScanResult(Exception ex){
+    public ScanResult(Exception ex) {
         setException(ex);
         setStatus(Status.ERROR);
     }
@@ -40,16 +40,16 @@ public class ScanResult {
     public void setResult(String result) {
         this.result = result;
 
-        if (result == null){
+        if (result == null) {
             setStatus(Status.ERROR);
         } else if (RESPONSE_OK.equals(result)) {
             setStatus(Status.PASSED);
-        } else if (result.endsWith(FOUND_SUFFIX)){
-            setSignature(result.substring(STREAM_PREFIX.length(), result.lastIndexOf(FOUND_SUFFIX) - 1 ));
+        } else if (result.endsWith(FOUND_SUFFIX)) {
+            setSignature(result.substring(STREAM_PREFIX.length(), result.lastIndexOf(FOUND_SUFFIX) - 1));
         } else if (RESPONSE_SIZE_EXCEEDED.equals(result)) {
             setStatus(Status.ERROR);
         } else if (RESPONSE_ERROR_WRITING_FILE.equals(result)) {
-            setStatus(Status.ERROR);                           
+            setStatus(Status.ERROR);
         }
 
     }

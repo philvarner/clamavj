@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.philvarner.clamavj</groupId>
     <artifactId>clamavj</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
     <description>A library to interact with clamd for virus scanning.</description>
     <url>http://philvarner.com/clamavj/</url>
     <licenses>
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.7</version>
+            <version>4.10</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
