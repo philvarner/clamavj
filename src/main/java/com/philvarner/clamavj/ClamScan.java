@@ -1,15 +1,16 @@
 package com.philvarner.clamavj;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class ClamScan {
 
@@ -17,6 +18,7 @@ public class ClamScan {
 
     public static final int CHUNK_SIZE = 2048;
     private static final byte[] INSTREAM = "zINSTREAM\0".getBytes();
+    private static final byte[] SCAN = "zSCAN\0".getBytes();
     private static final byte[] PING = "zPING\0".getBytes();
     private static final byte[] STATS = "nSTATS\n".getBytes();
     // TODO: IDSESSION, END
@@ -147,6 +149,87 @@ public class ClamScan {
     public ScanResult scan(byte[] in) throws IOException {
         return scan(new ByteArrayInputStream(in));
     }
+    
+    /**
+     * The method to call if you have the content in a file.
+     *
+     * @param in the file to scan
+     * @return the result of the scan
+     * @throws IOException
+     */
+    public ScanResult scan(File in) throws IOException {
+        Socket socket = new Socket();
+        try {
+            socket.connect(new InetSocketAddress(getHost(), getPort()));
+        } catch (IOException e) {
+            log.error("could not connect to clamd server", e);
+            return new ScanResult(e);
+        }
+
+        try {
+            socket.setSoTimeout(getTimeout());
+        } catch (SocketException e) {
+            log.error("Could not set socket timeout to " + getTimeout() + "ms", e);
+        }
+
+        DataOutputStream dos = null;
+        String response = "";
+        try {  // finally to close resources
+
+            try {
+                dos = new DataOutputStream(socket.getOutputStream());
+            } catch (IOException e) {
+                log.error("could not open socket OutputStream", e);
+                return new ScanResult(e);
+            }
+
+            try {
+                dos.write(SCAN);
+            } catch (IOException e) {
+                log.debug("error writing SCAN command", e);
+                return new ScanResult(e);
+            }
+
+            try {
+                dos.write(in.getAbsolutePath().getBytes());
+            } catch (IOException e) {
+                log.debug("error writing file path", e);
+                return new ScanResult(e);
+            }
+
+            try {
+                dos.writeInt(0);
+                dos.flush();
+            } catch (IOException e) {
+                log.debug("error writing zero-length chunk to socket", e);
+            }
+
+            int read = CHUNK_SIZE;
+            byte[] buffer = new byte[CHUNK_SIZE];
+            try {
+                read = socket.getInputStream().read(buffer);
+            } catch (IOException e) {
+                log.debug("error reading result from socket", e);
+                read = 0;
+            }
+
+            if (read > 0) response = new String(buffer, 0, read);
+
+        } finally {
+            if (dos != null) try {
+                dos.close();
+            } catch (IOException e) {
+                log.debug("exception closing DOS", e);
+            }
+            try {
+                socket.close();
+            } catch (IOException e) {
+                log.debug("exception closing socket", e);
+            }
+        }
+        if (log.isDebugEnabled()) log.debug("Response: " + response);
+        return new ScanResult(response.trim());
+    }    
 
     /**
      * The preferred method to call. This streams the contents of the InputStream to clamd, so
