@@ -7,3 +7,7 @@ target
 *.war
 *.ear
 .idea
+/.classpath
+/.project
+/.settings
+/.settings/**
