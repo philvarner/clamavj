@@ -157,7 +157,7 @@ public class ClamScan {
      * @return the result of the scan
      * @throws IOException
      */
-    public ScanResult scan(File in) throws IOException {
+    public ScanResult scan(File in) {
         Socket socket = new Socket();
         try {
             socket.connect(new InetSocketAddress(getHost(), getPort()));
