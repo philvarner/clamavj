@@ -8,7 +8,8 @@ import junit.framework.TestCase;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import static com.philvarner.clamavj.ScanResult.RESPONSE_OK;
+import static com.philvarner.clamavj.ScanResult.OK_SUFFIX;
+import static com.philvarner.clamavj.ScanResult.STREAM_PATH;
 
 public class ClamScanTestCase extends TestCase {
 
@@ -29,7 +30,7 @@ public class ClamScanTestCase extends TestCase {
         assertNotNull(is);
         ScanResult result = scanner.scan(is);
         assertEquals(Status.PASSED, result.getStatus());
-        assertEquals(RESPONSE_OK, result.getResult());
+        assertEquals(STREAM_PATH + ": " + OK_SUFFIX, result.getResult());
     }
 
     public void testVirus() throws Exception {
@@ -67,7 +68,7 @@ public class ClamScanTestCase extends TestCase {
         assertNotNull(is);
         ScanResult result = scanner.scan(is);
         assertEquals(Status.PASSED, result.getStatus());
-        assertEquals(RESPONSE_OK, result.getResult());
+        assertEquals(STREAM_PATH + ": " + OK_SUFFIX, result.getResult());
     }
 
     public void testTooLarge() throws Exception {

@@ -12,13 +12,14 @@ import java.net.SocketException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import static com.philvarner.clamavj.ScanResult.STREAM_PATH;
+
 public class ClamScan {
 
     private static Log log = LogFactory.getLog(ClamScan.class);
 
     public static final int CHUNK_SIZE = 2048;
     private static final byte[] INSTREAM = "zINSTREAM\0".getBytes();
-    private static final byte[] SCAN = "zSCAN\0".getBytes();
     private static final byte[] PING = "zPING\0".getBytes();
     private static final byte[] STATS = "nSTATS\n".getBytes();
     // TODO: IDSESSION, END
@@ -155,10 +156,11 @@ public class ClamScan {
      *
      * @param in the file to scan
      * @return the result of the scan
-     * @throws IOException
      */
     public ScanResult scan(File in) {
+    	
         Socket socket = new Socket();
+        
         try {
             socket.connect(new InetSocketAddress(getHost(), getPort()));
         } catch (IOException e) {
@@ -184,24 +186,11 @@ public class ClamScan {
             }
 
             try {
-                dos.write(SCAN);
+                dos.write(("SCAN " + in.getAbsolutePath() + "\n").getBytes());
+                dos.flush();
             } catch (IOException e) {
                 log.debug("error writing SCAN command", e);
                 return new ScanResult(e);
-            }
-
-            try {
-                dos.write(in.getAbsolutePath().getBytes());
-            } catch (IOException e) {
-                log.debug("error writing file path", e);
-                return new ScanResult(e);
-            }
-
-            try {
-                dos.writeInt(0);
-                dos.flush();
-            } catch (IOException e) {
-                log.debug("error writing zero-length chunk to socket", e);
             }
 
             int read = CHUNK_SIZE;
@@ -228,7 +217,7 @@ public class ClamScan {
             }
         }
         if (log.isDebugEnabled()) log.debug("Response: " + response);
-        return new ScanResult(response.trim());
+        return new ScanResult(response.trim(), in.getAbsolutePath());
     }    
 
     /**
@@ -325,7 +314,7 @@ public class ClamScan {
 
         if (log.isDebugEnabled()) log.debug("Response: " + response);
 
-        return new ScanResult(response.trim());
+        return new ScanResult(response.trim(), STREAM_PATH);
     }
 
     public String getHost() {
