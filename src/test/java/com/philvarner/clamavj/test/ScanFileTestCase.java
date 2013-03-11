@@ -31,7 +31,7 @@ public class ScanFileTestCase extends TestCase {
     	
         ScanResult result = scanner.scan(f);
         
-        assertEquals(f.getAbsolutePath() + ": " + OK_SUFFIX, result.getResult());
+        assertEquals(ScanResult.getPrefix(f.getAbsolutePath()) + OK_SUFFIX, result.getResult());
         assertEquals(Status.PASSED, result.getStatus());
         
     }
@@ -47,7 +47,7 @@ public class ScanFileTestCase extends TestCase {
     	
         ScanResult result = scanner.scan(f);
 
-        assertEquals(f.getAbsolutePath() + ": Eicar-Test-Signature FOUND", result.getResult());
+        assertEquals(ScanResult.getPrefix(f.getAbsolutePath()) + "Eicar-Test-Signature FOUND", result.getResult());
         assertEquals("Eicar-Test-Signature", result.getSignature());
         assertEquals(Status.FAILED, result.getStatus());
         

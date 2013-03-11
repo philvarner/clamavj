@@ -30,7 +30,7 @@ public class ClamScanTestCase extends TestCase {
         assertNotNull(is);
         ScanResult result = scanner.scan(is);
         assertEquals(Status.PASSED, result.getStatus());
-        assertEquals(STREAM_PATH + ": " + OK_SUFFIX, result.getResult());
+        assertEquals(ScanResult.getPrefix(STREAM_PATH) + OK_SUFFIX, result.getResult());
     }
 
     public void testVirus() throws Exception {
@@ -38,7 +38,7 @@ public class ClamScanTestCase extends TestCase {
         assertNotNull(is);
         ScanResult result = scanner.scan(is);
         assertEquals(Status.FAILED, result.getStatus());
-        assertEquals("stream: Eicar-Test-Signature FOUND", result.getResult());
+        assertEquals(ScanResult.getPrefix(STREAM_PATH) + "Eicar-Test-Signature FOUND", result.getResult());
         assertEquals("Eicar-Test-Signature", result.getSignature());
     }
 
@@ -46,7 +46,7 @@ public class ClamScanTestCase extends TestCase {
         byte[] bytes = "X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*".getBytes();
         ScanResult result = scanner.scan(bytes);
         assertEquals(Status.FAILED, result.getStatus());
-        assertEquals("stream: Eicar-Test-Signature FOUND", result.getResult());
+        assertEquals(ScanResult.getPrefix(STREAM_PATH) + "Eicar-Test-Signature FOUND", result.getResult());
         assertEquals("Eicar-Test-Signature", result.getSignature());
     }
 
@@ -59,7 +59,7 @@ public class ClamScanTestCase extends TestCase {
         byte[] bytes = "X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*".getBytes();
         ScanResult result = scanner.scan(bytes);
         assertEquals(Status.FAILED, result.getStatus());
-        assertEquals("stream: Eicar-Test-Signature FOUND", result.getResult());
+        assertEquals(ScanResult.getPrefix(STREAM_PATH) + "Eicar-Test-Signature FOUND", result.getResult());
         assertEquals("Eicar-Test-Signature", result.getSignature());
     }
 
@@ -68,7 +68,7 @@ public class ClamScanTestCase extends TestCase {
         assertNotNull(is);
         ScanResult result = scanner.scan(is);
         assertEquals(Status.PASSED, result.getStatus());
-        assertEquals(STREAM_PATH + ": " + OK_SUFFIX, result.getResult());
+        assertEquals(ScanResult.getPrefix(STREAM_PATH) + OK_SUFFIX, result.getResult());
     }
 
     public void testTooLarge() throws Exception {
