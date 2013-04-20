@@ -120,8 +120,7 @@ public class ClamScanTestCase {
     @Test
     public void testStats() throws Exception {
         String result = scanner.stats();
-        assertTrue("didn't contain POOLS: \n" + result, result.contains("POOLS:"));
-        assertTrue("didn't contain STATE: \n" + result, result.contains("STATE:"));
+        assertTrue("didn't contain POOLS: \n" + result, result.contains("POOLS:") || result.contains("STATE:"));
     }
 
     @Test
