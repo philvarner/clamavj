@@ -9,7 +9,7 @@ public class ScanResult {
 
     public enum Status {PASSED, FAILED, ERROR}
 
-    public static final String STREAM_PREFIX = "stream: ";
+    public static final String STREAM_PREFIX = ": ";
     public static final String RESPONSE_OK = "stream: OK";
     public static final String FOUND_SUFFIX = "FOUND";
 
@@ -45,7 +45,7 @@ public class ScanResult {
         } else if (RESPONSE_OK.equals(result)) {
             setStatus(Status.PASSED);
         } else if (result.endsWith(FOUND_SUFFIX)) {
-            setSignature(result.substring(STREAM_PREFIX.length(), result.lastIndexOf(FOUND_SUFFIX) - 1));
+            setSignature(result.substring(result.indexOf(STREAM_PREFIX) + STREAM_PREFIX.length(), result.lastIndexOf(FOUND_SUFFIX) - 1));
         } else if (RESPONSE_SIZE_EXCEEDED.equals(result)) {
             setStatus(Status.ERROR);
         } else if (RESPONSE_ERROR_WRITING_FILE.equals(result)) {

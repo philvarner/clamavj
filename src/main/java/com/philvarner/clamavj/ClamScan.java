@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -19,6 +20,9 @@ public class ClamScan {
     private static final byte[] INSTREAM = "zINSTREAM\0".getBytes();
     private static final byte[] PING = "zPING\0".getBytes();
     private static final byte[] STATS = "nSTATS\n".getBytes();
+    private static final byte[] VERSION = "VERSION\n".getBytes();
+    private static final byte[] RELOAD = "RELOAD\n".getBytes();
+    private static final byte[] SHUTDOWN = "SHUTDOWN\n".getBytes();
     // TODO: IDSESSION, END
 
     //    It is mandatory to prefix this command with n or z, and all commands inside IDSESSION must  be
@@ -62,6 +66,19 @@ public class ClamScan {
         return "PONG\0".equals(cmd(PING));
     }
 
+    public String version() {
+      return cmd(VERSION);
+    }
+
+    public String reload() {
+      return cmd(RELOAD).trim();
+    }
+
+    public String shutdown() {
+      return cmd(SHUTDOWN);
+    }
+
+    
     public String cmd(byte[] cmd) {
 
         Socket socket = new Socket();
@@ -245,6 +262,14 @@ public class ClamScan {
         return new ScanResult(response.trim());
     }
 
+    public ScanResult scan(File file) {
+      String command = "MULTISCAN " + file.getAbsolutePath();
+
+      String result = cmd(command.getBytes()).trim();
+
+      return new ScanResult(result);
+    }
+    
     public String getHost() {
         return host;
     }
