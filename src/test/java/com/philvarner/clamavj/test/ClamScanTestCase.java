@@ -3,6 +3,7 @@ package com.philvarner.clamavj.test;
 import com.philvarner.clamavj.ClamScan;
 import com.philvarner.clamavj.ScanResult;
 import com.philvarner.clamavj.ScanResult.Status;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,7 +13,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 import static org.junit.Assert.*;
-
 import static com.philvarner.clamavj.ScanResult.RESPONSE_OK;
 
 public class ClamScanTestCase {
@@ -128,4 +128,25 @@ public class ClamScanTestCase {
         assertTrue(scanner.ping());
     }
 
+    @Test
+    public void testVersion() throws Exception {
+        assertTrue(scanner.version().indexOf("ClamAV") >= 0);
+    }
+    
+    @Test
+    public void testReload() throws Exception {
+        assertEquals("RELOADING", scanner.reload());
+    }
+    
+    @Test
+    public void testScanFile() throws Exception {
+        File eicar = new File("src/test/resources/eicar.txt");
+        
+        ScanResult result = scanner.scan(eicar);
+  
+        assertEquals(Status.FAILED, result.getStatus());
+        assertTrue(result.getResult().indexOf(": Eicar-Test-Signature FOUND") >= 0);
+        assertEquals("Eicar-Test-Signature", result.getSignature());
+    }
+    
 }
