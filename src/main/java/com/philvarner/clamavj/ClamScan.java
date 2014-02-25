@@ -31,10 +31,10 @@ public class ClamScan {
     //    corresponding  command had.  Clamd will process the commands asynchronously, and reply as soon
     //    as it has finished processing.
     //
-    //    Clamd requires clients to read all the replies it sent, before sending more commands  to  pre-vent prevent
+    //    Clamd requires clients to read all the replies it sent, before sending more commands  to  pre-
     //    vent  send()  deadlocks. The recommended way to implement a client that uses IDSESSION is with
     //    non-blocking sockets, and  a  select()/poll()  loop:  whenever  send  would  block,  sleep  in
-    //    select/poll  until either you can write more data, or read more replies.  Note that using non-blocking nonblocking
+    //    select/poll  until either you can write more data, or read more replies.  Note that using non-
     //    blocking sockets without the select/poll loop and  alternating  recv()/send()  doesn't  comply
     //    with clamd's requirements.
     //
@@ -190,26 +190,22 @@ public class ClamScan {
                 return new ScanResult(e);
             }
 
-            int read = CHUNK_SIZE;
+            int read;
             byte[] buffer = new byte[CHUNK_SIZE];
-            while (read == CHUNK_SIZE) {
-                try {
-                    read = in.read(buffer);
-                } catch (IOException e) {
-                    log.debug("error reading from InputStream", e);
-                    return new ScanResult(e);
-                }
-
-                if (read > 0) { // if previous read exhausted the stream
-                    try {
-                        dos.writeInt(read);
-                        dos.write(buffer, 0, read);
-                    } catch (IOException e) {
-                        log.debug("error writing data to socket", e);
-                        break;
-                    }
-                }
-            }
+			try {
+				while ((read = in.read(buffer)) != -1) {
+					try {
+						dos.writeInt(read);
+						dos.write(buffer, 0, read);
+					} catch (IOException e) {
+						log.debug("error writing data to socket", e);
+						break;
+					}
+				}
+			} catch (IOException ex) {
+				log.error("Exception while scanning", ex);
+				return new ScanResult(ex);
+			}
 
             try {
                 dos.writeInt(0);
