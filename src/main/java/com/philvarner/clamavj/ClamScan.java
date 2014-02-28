@@ -55,7 +55,7 @@ public class ClamScan {
     private int timeout;
     private String host;
     private int port;
-	private long maxStreamSize = 0;
+	private long maxStreamSize = 25 * 1024 * 1024 * 1024;
 
     public ClamScan() {
     }
