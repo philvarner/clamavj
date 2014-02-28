@@ -1,7 +1,10 @@
-package com.philvarner.clamavj;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+package com.philvarner.clamavj;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
@@ -10,12 +13,20 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ *
+ * @author hank
+ */
 public class ClamScan {
 
-    private static Log log = LogFactory.getLog(ClamScan.class);
+    // private static Log log = LogFactory.getLog(ClamScan.class);
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    public static final int CHUNK_SIZE = 2048;
+
+    public static final int CHUNK_SIZE = 1024 * 8;
     private static final byte[] INSTREAM = "zINSTREAM\0".getBytes();
     private static final byte[] PING = "zPING\0".getBytes();
     private static final byte[] STATS = "nSTATS\n".getBytes();
@@ -31,10 +42,10 @@ public class ClamScan {
     //    corresponding  command had.  Clamd will process the commands asynchronously, and reply as soon
     //    as it has finished processing.
     //
-    //    Clamd requires clients to read all the replies it sent, before sending more commands  to  pre-
+    //    Clamd requires clients to read all the replies it sent, before sending more commands  to  pre-vent prevent
     //    vent  send()  deadlocks. The recommended way to implement a client that uses IDSESSION is with
     //    non-blocking sockets, and  a  select()/poll()  loop:  whenever  send  would  block,  sleep  in
-    //    select/poll  until either you can write more data, or read more replies.  Note that using non-
+    //    select/poll  until either you can write more data, or read more replies.  Note that using non-blocking nonblocking
     //    blocking sockets without the select/poll loop and  alternating  recv()/send()  doesn't  comply
     //    with clamd's requirements.
     //
@@ -44,14 +55,22 @@ public class ClamScan {
     private int timeout;
     private String host;
     private int port;
+	private long maxStreamSize = 0;
 
     public ClamScan() {
     }
 
     public ClamScan(String host, int port, int timeout) {
-        setHost(host);
-        setPort(port);
-        setTimeout(timeout);
+        this.host = host;
+        this.port = port;
+        this.timeout = timeout;
+    }
+
+    public ClamScan(String host, int port, int timeout, long maxStreamSize) {
+        this.host = host;
+        this.port = port;
+        this.timeout = timeout;
+		this.maxStreamSize = maxStreamSize;
     }
 
     public String stats() {
@@ -174,6 +193,7 @@ public class ClamScan {
 
         DataOutputStream dos = null;
         String response = "";
+		long bytesRead = 0;
         try {  // finally to close resources
 
             try {
@@ -193,10 +213,15 @@ public class ClamScan {
             int read;
             byte[] buffer = new byte[CHUNK_SIZE];
 			try {
-				while ((read = in.read(buffer)) != -1) {
+				while (((read = in.read(buffer)) != -1) && (bytesRead < maxStreamSize)) {
+					if (read + bytesRead > maxStreamSize) {
+						read = (int) (maxStreamSize - bytesRead);
+						log.debug("MaxStreamSize reached, reducing buffer");
+					}
 					try {
 						dos.writeInt(read);
 						dos.write(buffer, 0, read);
+						bytesRead += read;
 					} catch (IOException e) {
 						log.debug("error writing data to socket", e);
 						break;
@@ -269,4 +294,12 @@ public class ClamScan {
     public void setTimeout(int timeout) {
         this.timeout = timeout;
     }
+
+	public long getMaxStreamSize() {
+		return maxStreamSize;
+	}
+
+	public void setMaxStreamSize(long maxStreamSize) {
+		this.maxStreamSize = maxStreamSize;
+	}
 }
