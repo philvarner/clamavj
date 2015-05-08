@@ -1,4 +1,6 @@
 ---
 language: java
 before_install:
-  - sudo apt-get install clamav-daemon
+  - sudo apt-get install -y clamav-daemon
+  - sudo freshclam
+  - sudo clamd --config-file $TRAVIS_BUILD_DIR/clamd.conf
