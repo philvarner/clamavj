@@ -17,6 +17,7 @@ import static com.philvarner.clamavj.ScanResult.RESPONSE_OK;
 
 public class ClamScanTestCase {
 
+    private static final String EicarStandardAVTestFIle = "X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*";
     private ClamScan scanner;
 
     @Before
@@ -42,7 +43,7 @@ public class ClamScanTestCase {
     @Test
     public void testVirus() throws Exception {
         InputStream is = new ByteArrayInputStream(
-                "X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*".getBytes());
+                EicarStandardAVTestFIle.getBytes());
         assertNotNull(is);
         ScanResult result = scanner.scan(is);
         assertEquals(Status.FAILED, result.getStatus());
@@ -52,7 +53,7 @@ public class ClamScanTestCase {
 
     @Test
     public void testVirusAsByteArray() throws Exception {
-        byte[] bytes = "X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*".getBytes();
+        byte[] bytes = EicarStandardAVTestFIle.getBytes();
         ScanResult result = scanner.scan(bytes);
         assertEquals(Status.FAILED, result.getStatus());
         assertEquals("stream: Eicar-Test-Signature FOUND", result.getResult());
@@ -84,6 +85,19 @@ public class ClamScanTestCase {
 
         }
     }
+    
+    @Test
+    public void testVirusFromSlowInputStream() throws Exception {
+        // An InputStream that does not completely fill the provided byte array for read(byte[]...)
+        InputStream is = new SlowEicarInputStream();
+        assertNotNull(is);
+        ScanResult result = scanner.scan(is);
+        assertEquals(Status.FAILED, result.getStatus());
+        assertEquals("stream: Eicar-Test-Signature FOUND", result.getResult());
+        assertEquals("Eicar-Test-Signature", result.getSignature());
+    }
+
+    
 
     @Test
     public void testNoArgConstructor() throws Exception {
@@ -92,7 +106,7 @@ public class ClamScanTestCase {
         scanner.setPort(3310);
         scanner.setTimeout(60000);
 
-        byte[] bytes = "X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*".getBytes();
+        byte[] bytes = EicarStandardAVTestFIle.getBytes();
         ScanResult result = scanner.scan(bytes);
         assertEquals(Status.FAILED, result.getStatus());
         assertEquals("stream: Eicar-Test-Signature FOUND", result.getResult());
