@@ -1,7 +1,10 @@
-package com.philvarner.clamavj;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+package com.philvarner.clamavj;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
@@ -10,12 +13,20 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ *
+ * @author hank
+ */
 public class ClamScan {
 
-    private static Log log = LogFactory.getLog(ClamScan.class);
+    // private static Log log = LogFactory.getLog(ClamScan.class);
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    public static final int CHUNK_SIZE = 2048;
+
+    public static final int CHUNK_SIZE = 1024 * 8;
     private static final byte[] INSTREAM = "zINSTREAM\0".getBytes();
     private static final byte[] PING = "zPING\0".getBytes();
     private static final byte[] STATS = "nSTATS\n".getBytes();
@@ -44,14 +55,22 @@ public class ClamScan {
     private int timeout;
     private String host;
     private int port;
+	private long maxStreamSize = 25 * 1024 * 1024 * 1024;
 
     public ClamScan() {
     }
 
     public ClamScan(String host, int port, int timeout) {
-        setHost(host);
-        setPort(port);
-        setTimeout(timeout);
+        this.host = host;
+        this.port = port;
+        this.timeout = timeout;
+    }
+
+    public ClamScan(String host, int port, int timeout, long maxStreamSize) {
+        this.host = host;
+        this.port = port;
+        this.timeout = timeout;
+		this.maxStreamSize = maxStreamSize;
     }
 
     public String stats() {
@@ -174,6 +193,7 @@ public class ClamScan {
 
         DataOutputStream dos = null;
         String response = "";
+		long bytesRead = 0;
         try {  // finally to close resources
 
             try {
@@ -190,26 +210,27 @@ public class ClamScan {
                 return new ScanResult(e);
             }
 
-            int read = CHUNK_SIZE;
+            int read;
             byte[] buffer = new byte[CHUNK_SIZE];
-            while (read == CHUNK_SIZE) {
-                try {
-                    read = in.read(buffer);
-                } catch (IOException e) {
-                    log.debug("error reading from InputStream", e);
-                    return new ScanResult(e);
-                }
-
-                if (read > 0) { // if previous read exhausted the stream
-                    try {
-                        dos.writeInt(read);
-                        dos.write(buffer, 0, read);
-                    } catch (IOException e) {
-                        log.debug("error writing data to socket", e);
-                        break;
-                    }
-                }
-            }
+			try {
+				while (((read = in.read(buffer)) != -1) && (bytesRead < maxStreamSize)) {
+					if (read + bytesRead > maxStreamSize) {
+						read = (int) (maxStreamSize - bytesRead);
+						log.debug("MaxStreamSize reached, reducing buffer");
+					}
+					try {
+						dos.writeInt(read);
+						dos.write(buffer, 0, read);
+						bytesRead += read;
+					} catch (IOException e) {
+						log.debug("error writing data to socket", e);
+						break;
+					}
+				}
+			} catch (IOException ex) {
+				log.error("Exception while scanning", ex);
+				return new ScanResult(ex);
+			}
 
             try {
                 dos.writeInt(0);
@@ -273,4 +294,12 @@ public class ClamScan {
     public void setTimeout(int timeout) {
         this.timeout = timeout;
     }
+
+	public long getMaxStreamSize() {
+		return maxStreamSize;
+	}
+
+	public void setMaxStreamSize(long maxStreamSize) {
+		this.maxStreamSize = maxStreamSize;
+	}
 }

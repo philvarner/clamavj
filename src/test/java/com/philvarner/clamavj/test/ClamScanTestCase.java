@@ -108,7 +108,8 @@ public class ClamScanTestCase {
         assertEquals(RESPONSE_OK, result.getResult());
     }
 
-    @Test
+    // @Test
+	// disabled in our case, since we don't have a limit
     public void testTooLarge() throws Exception {
         InputStream is = new ArbitraryInputStream();
         assertNotNull(is);
