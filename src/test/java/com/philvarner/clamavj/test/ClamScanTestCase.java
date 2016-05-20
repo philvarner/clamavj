@@ -17,7 +17,7 @@ import static com.philvarner.clamavj.ScanResult.RESPONSE_OK;
 
 public class ClamScanTestCase {
 
-    private static final String EicarStandardAVTestFIle = "X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*";
+    private static final String EicarStandardAVTestFile = "X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*";
     private ClamScan scanner;
 
     @Before
@@ -43,7 +43,7 @@ public class ClamScanTestCase {
     @Test
     public void testVirus() throws Exception {
         InputStream is = new ByteArrayInputStream(
-                EicarStandardAVTestFIle.getBytes());
+                EicarStandardAVTestFile.getBytes());
         assertNotNull(is);
         ScanResult result = scanner.scan(is);
         assertEquals(Status.FAILED, result.getStatus());
@@ -53,7 +53,7 @@ public class ClamScanTestCase {
 
     @Test
     public void testVirusAsByteArray() throws Exception {
-        byte[] bytes = EicarStandardAVTestFIle.getBytes();
+        byte[] bytes = EicarStandardAVTestFile.getBytes();
         ScanResult result = scanner.scan(bytes);
         assertEquals(Status.FAILED, result.getStatus());
         assertEquals("stream: Eicar-Test-Signature FOUND", result.getResult());
@@ -106,7 +106,7 @@ public class ClamScanTestCase {
         scanner.setPort(3310);
         scanner.setTimeout(60000);
 
-        byte[] bytes = EicarStandardAVTestFIle.getBytes();
+        byte[] bytes = EicarStandardAVTestFile.getBytes();
         ScanResult result = scanner.scan(bytes);
         assertEquals(Status.FAILED, result.getStatus());
         assertEquals("stream: Eicar-Test-Signature FOUND", result.getResult());
