@@ -109,14 +109,16 @@ public class ClamScan {
             int read = CHUNK_SIZE;
             byte[] buffer = new byte[CHUNK_SIZE];
 
-            while (read == CHUNK_SIZE) {
+            while (read != -1) {
                 try {
                     read = is.read(buffer);
                 } catch (IOException e) {
                     log.error("error reading result from socket", e);
                     break;
                 }
-                response.append(new String(buffer, 0, read));
+                if (read > 0) {
+                    response.append(new String(buffer, 0, read));
+                }
             }
 
         } finally {
