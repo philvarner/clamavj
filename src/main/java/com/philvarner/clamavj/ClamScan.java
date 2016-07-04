@@ -109,14 +109,16 @@ public class ClamScan {
             int read = CHUNK_SIZE;
             byte[] buffer = new byte[CHUNK_SIZE];
 
-            while (read == CHUNK_SIZE) {
+            while (read != -1) {
                 try {
                     read = is.read(buffer);
                 } catch (IOException e) {
                     log.error("error reading result from socket", e);
                     break;
                 }
-                response.append(new String(buffer, 0, read));
+                if (read > 0) {
+                    response.append(new String(buffer, 0, read));
+                }
             }
 
         } finally {
@@ -192,7 +194,7 @@ public class ClamScan {
 
             int read = CHUNK_SIZE;
             byte[] buffer = new byte[CHUNK_SIZE];
-            while (read == CHUNK_SIZE) {
+            while (read != -1) {
                 try {
                     read = in.read(buffer);
                 } catch (IOException e) {
@@ -200,7 +202,7 @@ public class ClamScan {
                     return new ScanResult(e);
                 }
 
-                if (read > 0) { // if previous read exhausted the stream
+                if (read != -1) { // send buffer if previous read did not exhaust the stream
                     try {
                         dos.writeInt(read);
                         dos.write(buffer, 0, read);
@@ -225,7 +227,7 @@ public class ClamScan {
                 read = 0;
             }
 
-            if (read > 0) response = new String(buffer, 0, read);
+            if (read != -1) response = new String(buffer, 0, read);
 
         } finally {
             if (dos != null) try {
