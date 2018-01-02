@@ -5,3 +5,4 @@ before_install:
   - sudo apt-get install clamav-daemon -qq
   - sudo freshclam
   - sudo clamd --config-file $TRAVIS_BUILD_DIR/clamd.conf
+script: mvn test -B -DtestClamavj
