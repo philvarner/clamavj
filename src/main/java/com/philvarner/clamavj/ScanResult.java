@@ -15,7 +15,6 @@ public class ScanResult {
     public static final String ERROR_SUFFIX = "ERROR";
 
     public static final String RESPONSE_SIZE_EXCEEDED = "INSTREAM size limit exceeded. ERROR";
-    public static final String RESPONSE_ERROR_WRITING_FILE = "Error writing to temporary file. ERROR";
 
     public static String getPrefix(String path) {
         return path + ": ";
