@@ -19,7 +19,7 @@ public class ScanResultTestCase {
 	@Test
 	public void testErrorDetection() {
 		String response = "Error writing to temporary file ERROR";
-		ScanResult scanResult = new ScanResult(response);
+		ScanResult scanResult = new ScanResult(response, "stream");
 		
 		assertEquals(ScanResult.Status.ERROR, scanResult.getStatus());
 	}

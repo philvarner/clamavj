@@ -11,9 +11,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
+import static com.philvarner.clamavj.ScanResult.OK_SUFFIX;
+import static com.philvarner.clamavj.ScanResult.STREAM_PATH;
 import static org.junit.Assert.*;
-
-import static com.philvarner.clamavj.ScanResult.RESPONSE_OK;
 
 public class ClamScanTestCase {
 
@@ -36,7 +36,7 @@ public class ClamScanTestCase {
         assertNotNull(is);
         ScanResult result = scanner.scan(is);
         assertEquals(Status.PASSED, result.getStatus());
-        assertEquals(RESPONSE_OK, result.getResult());
+        assertEquals(ScanResult.getPrefix(STREAM_PATH) + OK_SUFFIX, result.getResult());
     }
 
     @Test
@@ -46,7 +46,7 @@ public class ClamScanTestCase {
         assertNotNull(is);
         ScanResult result = scanner.scan(is);
         assertEquals(Status.FAILED, result.getStatus());
-        assertEquals("stream: Eicar-Test-Signature FOUND", result.getResult());
+        assertEquals(ScanResult.getPrefix(STREAM_PATH) + "Eicar-Test-Signature FOUND", result.getResult());
         assertEquals("Eicar-Test-Signature", result.getSignature());
     }
 
@@ -55,7 +55,7 @@ public class ClamScanTestCase {
         byte[] bytes = "X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*".getBytes();
         ScanResult result = scanner.scan(bytes);
         assertEquals(Status.FAILED, result.getStatus());
-        assertEquals("stream: Eicar-Test-Signature FOUND", result.getResult());
+        assertEquals(ScanResult.getPrefix(STREAM_PATH) + "Eicar-Test-Signature FOUND", result.getResult());
         assertEquals("Eicar-Test-Signature", result.getSignature());
     }
 
@@ -95,7 +95,7 @@ public class ClamScanTestCase {
         byte[] bytes = "X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*".getBytes();
         ScanResult result = scanner.scan(bytes);
         assertEquals(Status.FAILED, result.getStatus());
-        assertEquals("stream: Eicar-Test-Signature FOUND", result.getResult());
+        assertEquals(ScanResult.getPrefix(STREAM_PATH) + "Eicar-Test-Signature FOUND", result.getResult());
         assertEquals("Eicar-Test-Signature", result.getSignature());
     }
 
@@ -105,7 +105,7 @@ public class ClamScanTestCase {
         assertNotNull(is);
         ScanResult result = scanner.scan(is);
         assertEquals(Status.PASSED, result.getStatus());
-        assertEquals(RESPONSE_OK, result.getResult());
+        assertEquals(ScanResult.getPrefix(STREAM_PATH) + OK_SUFFIX, result.getResult());
     }
 
     @Test

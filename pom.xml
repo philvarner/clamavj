@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
-    <name>clamavj</name>
+    <name>ClamAV Daemon Java API</name>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.philvarner.clamavj</groupId>
+    <groupId>edu.unc.lib.cdr</groupId>
     <artifactId>clamavj</artifactId>
-    <version>0.2</version>
-    <description>A library to interact with clamd for virus scanning.</description>
-    <url>http://philvarner.com/clamavj/</url>
+    <version>0.3</version>
+    <description>A fork or the Phil Varner library to interact with clamd for virus scanning.</description>
     <licenses>
         <license>
             <name>Apache Software License, 2.0</name>
@@ -32,6 +31,28 @@
             </plugin>
         </plugins>
     </reporting>
+    <profiles>
+        <profile>
+        <id>skip-clamavj-tests</id>
+        <activation>
+            <property>
+                <name>!testClamavj</name>
+            </property>
+        </activation>
+        <build>
+            <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.20</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+            </plugins>
+        </build>
+        </profile>
+    </profiles>
     <build>
         <pluginManagement>
             <plugins>
